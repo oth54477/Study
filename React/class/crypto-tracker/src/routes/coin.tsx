@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Route, Switch, useLocation, useParams } from "react-router-dom";
+import {
+  Link,
+  Route,
+  Switch,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import Price from "./Price";
@@ -15,11 +22,11 @@ const Title = styled.h1`
 `;
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* justify-content: center; */
   align-items: center;
-  padding: 0px 20px;
+  padding: 0px 5vw;
 `;
 const Header = styled.div`
   height: 10vh;
@@ -35,18 +42,20 @@ const Loader = styled.span`
 const OverView = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  width: 80vw;
-  height: 10vh;
+  /* align-items: center; */
+  /* width: 80vw; */
+  /* height: 10vh; */
   background-color: #151515;
   border-radius: 25px;
-  padding: 0px 5vw;
-  margin: 5vh 0vw;
+  padding: 10px 20px;
+  /* margin: 5vh 0vw; */
 `;
 
 const OverViewItem = styled.span`
   color: ${(props) => props.theme.textColor};
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   span {
     &:first-child {
       font-size: 13px;
@@ -54,13 +63,34 @@ const OverViewItem = styled.span`
       text-transform: uppercase;
       margin-bottom: 10px;
     }
-    text-align: center;
-    display: block;
+    /* text-align: center; */
+    /* display: block; */
   }
 `;
 
 const Description = styled.p`
   margin: 20px 10vw;
+`;
+
+const Tabs = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 25px 0px;
+  gap: 10px;
+`;
+const Tab = styled.span<{ isActive: boolean }>`
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 400;
+  background-color: #151515;
+  padding: 7px, 0px;
+  border-radius: 10px;
+  color: ${(props) =>
+    props.isActive ? props.theme.accentColor : props.theme.textColor};
+  a {
+    display: block;
+  }
 `;
 
 interface RouteState {
@@ -129,6 +159,9 @@ function Coin() {
   const { state } = useLocation<RouteState>();
   const [info, setInfo] = useState<InfoData>();
   const [priceInfo, setPriceInfo] = useState<PriceData>();
+  const priceMatch = useRouteMatch("/:coinId/price");
+  const chartMatch = useRouteMatch("/:coinId/chart");
+  console.log(priceMatch);
   useEffect(() => {
     (async () => {
       const infoData = await axios(
@@ -181,11 +214,19 @@ function Coin() {
               <span>{priceInfo?.max_supply}</span>
             </OverViewItem>
           </OverView>
+          <Tabs>
+            <Tab isActive={chartMatch !== null}>
+              <Link to={`/${coinId}/chart`}>Chart</Link>
+            </Tab>
+            <Tab isActive={priceMatch !== null}>
+              <Link to={`/${coinId}/price`}>Price</Link>
+            </Tab>
+          </Tabs>
           <Switch>
-            <Route path={`/${coinId}/price`}>
+            <Route path={`/:coinId/price`}>
               <Price />
             </Route>
-            <Route path={`/${coinId}/chart`}>
+            <Route path={`/:coinId/chart`}>
               <Chart />
             </Route>
           </Switch>
